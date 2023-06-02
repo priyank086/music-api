@@ -13,12 +13,12 @@ export class EmailService {
   async sendResetPasswordEmail(userEmail: string, resetPasswordLink: string) {
     const mailData = {
       to: userEmail,
-      subject: 'Reset Password - AbroadShine',
+      subject: 'Reset Password - Music',
       template: './templates/reset-password', // Use the template's name without the file extension
       context: {
         resetPasswordLink,
       },
-      text: `Dear user,\n\nPlease click on the following link to reset your password: ${resetPasswordLink}\n\nBest regards,\nThe AbroadShine Team`
+      text: `Dear user,\n\nPlease click on the following link to reset your password: ${resetPasswordLink}\n\nBest regards,\nThe Music Team`
     };
   
     try {
