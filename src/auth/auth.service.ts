@@ -15,7 +15,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async register(email: string, password: string) {
+  async register(email: string, password: string, role: string) {
     const mongoUri = this.configService.get<string>('MONGO_URI');
     console.log(mongoUri);
 
@@ -25,8 +25,9 @@ export class AuthService {
       throw new Error('User already exists');
     }
 
-    await this.userService.createUser(email, password);
-  }
+    await this.userService.createUser(email, password, role);
+}
+
 
   async login(email: string, password: string) {
     const user = await this.userService.findByEmail(email);

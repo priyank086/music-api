@@ -29,12 +29,13 @@ export class AuthController {
   async register(
     @Body('email') email: string,
     @Body('password') password: string,
+    @Body('role') role: string,
   ) {
     try {
-      await this.authService.register(email, password);
+      await this.authService.register(email, password, role);
       return { message: 'User registered successfully' };
     } catch (e) {
-      console.log(e)
+      console.log(e);
       return { message: 'User already exists' };
     }
   }

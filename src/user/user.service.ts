@@ -37,15 +37,17 @@ export class UserService {
     return this.userModel.findOne({ resetPasswordToken: token }).exec();
   }
 
-  async createUser(email: string, password: string): Promise<User> {
+  async createUser(email: string, password: string, role: string): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new this.userModel({
       email,
       password: hashedPassword,
+      role,
     });
 
     return newUser.save();
-  }
+}
+
 
   async comparePassword(
     providedPassword: string,
