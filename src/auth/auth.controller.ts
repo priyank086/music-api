@@ -8,6 +8,7 @@ import {
   HttpCode,
   ConflictException,
   Render,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -33,6 +34,7 @@ export class AuthController {
       await this.authService.register(email, password);
       return { message: 'User registered successfully' };
     } catch (e) {
+      console.log(e)
       return { message: 'User already exists' };
     }
   }
@@ -47,6 +49,15 @@ export class AuthController {
   @Render('reset-password')
   async showResetPasswordPage() {
     return {};
+  }
+
+  @Post('user')
+  async getUserByAccessToken(@Body('access_token') token: string) {
+    const user = await this.authService.getUserByAccessToken(token);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return user;
   }
 
   @Post('reset-password')

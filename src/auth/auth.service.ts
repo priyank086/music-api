@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from 'src/email/email.service';
 import { UserService } from 'src/user/user.service';
-import { UserDocument } from 'src/user/user.schema';
+import { User, UserDocument } from 'src/user/user.schema';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 
@@ -16,7 +16,11 @@ export class AuthService {
   ) {}
 
   async register(email: string, password: string) {
+    const mongoUri = this.configService.get<string>('MONGO_URI');
+    console.log(mongoUri);
+
     const existingUser = await this.userService.findByEmail(email);
+    console.log(existingUser);
     if (existingUser) {
       throw new Error('User already exists');
     }
@@ -30,7 +34,7 @@ export class AuthService {
       console.log(`User with email ${email} not found`);
       throw new Error('User not found');
     }
-
+  
     const passwordMatch = await this.userService.comparePassword(
       password,
       user.password,
@@ -39,12 +43,13 @@ export class AuthService {
       console.log(`Invalid password for user with email ${email}`);
       throw new Error('Invalid credentials');
     }
-
-    const payload = { email: user.email, sub: user._id };
+  
+    const payload = { email: user.email, sub: (user as UserDocument)._id.toString() };
     return {
       access_token: this.jwtService.sign(payload),
     };
   }
+  
 
   async forgotPassword(email: string) {
     const user = await this.userService.findByEmail(email);
@@ -89,5 +94,16 @@ export class AuthService {
       return user;
     }
     return null;
+  }
+
+  async getUserByAccessToken(token: string): Promise<User | null> {
+    let payload;
+    try {
+      payload = this.jwtService.verify(token);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    return this.userService.findByEmail(payload.email);
   }
 }
